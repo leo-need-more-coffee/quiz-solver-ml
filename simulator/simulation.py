@@ -15,7 +15,7 @@ class SimulatedUser:
         self.n_variants = n_variants
 
     def answer(self, probs_system: np.ndarray, trust: float) -> int:
-        if random.random() < (1 - trust):
+        if random.random() < (1 - trust) or True:
             return np.random.choice(self.n_variants)
         else:
             return int(np.argmax(probs_system))
@@ -31,6 +31,7 @@ def run_single_simulation(
 ) -> List[float]:
     random.seed(seed)
     np.random.seed(seed)
+    start_time = np.datetime64('now')
 
     algorithm = alg_class(n_total_questions, n_variants, **alg_kwargs)
     if hasattr(algorithm, 'reset'):
@@ -61,7 +62,9 @@ def run_single_simulation(
 
         correct_pred = sum(algorithm.predict(q) == correct_answers[q] for q in chosen_questions)
         avg_correct_system[T] += correct_pred
-
+    end_time = np.datetime64('now')
+    duration = (end_time - start_time).astype('timedelta64[s]').item().total_seconds()
+    print(f"Simulation {alg_class} with seed {seed} took {duration} seconds.")
     return avg_correct_system.tolist()
 
 
@@ -77,7 +80,9 @@ def simulate_multiple(
     simulations: int
 ) -> Dict[str, List[float]]:
     results = {}
+    print("Total simulations:", simulations*len(algorithms))
     for name, cls, kwargs in algorithms:
+        print(f"Running {simulations} simulations for:", name)
         seeds = np.random.randint(0, 10**6, size=simulations)
         args_list = [
             (cls, kwargs, n_total_questions, n_variants, max_attempts, int(seed))

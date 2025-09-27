@@ -1,7 +1,7 @@
 from .base import AlgorithmBase
 from .gradient_bandit import GradientBanditAlgorithm
 from .softmax_temp import SoftmaxTemperatureAlgorithm
-from .epsilon_greedy import EpsilonGreedyAlgorithm, EpsilonGreedyAlgorithmTest
+from .epsilon_greedy import EpsilonGreedyAlgorithm
 from .uniform_random import UniformRandomAlgorithm
 from .thompson_sampling import ThompsonSamplingAttemptAlgorithm
 from .em import EMAlgorithm
