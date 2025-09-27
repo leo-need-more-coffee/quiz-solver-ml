@@ -34,7 +34,7 @@ available_algorithms = {
 }
 
 st.sidebar.header("Выбор алгоритмов")
-selected = st.sidebar.multiselect("Алгоритмы", list(available_algorithms.keys()), default=["GradientBandit", "EpsilonGreedy"])
+selected = st.sidebar.multiselect("Алгоритмы", list(available_algorithms.keys()), default=["GradientBandit", "EpsilonGreedy", "MyAlgorithm"])
 
 if st.button("Запустить симуляцию"):
     if not selected:

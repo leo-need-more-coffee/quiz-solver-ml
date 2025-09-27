@@ -68,6 +68,8 @@ python main.py \
 streamlit run streamlit_app.py
 ```
 
+[![Streamlit App Screenshot](readme-pics/streamlit_pic.png)](screenshot.png)
+
 Функциональность:
 
 * выбор и добавление алгоритмов для сравнения,
