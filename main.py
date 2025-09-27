@@ -1,4 +1,3 @@
-# main.py
 import random
 import numpy as np
 import argparse
@@ -7,53 +6,70 @@ from my_solution import MyAlgorithm
 
 
 class User:
-    def __init__(self, n_variants):
+    def __init__(self, n_variants, always_random=False):
         self.n_variants = n_variants
+        self.always_random = always_random
 
     def answer(self, probs_system, trust):
+        if self.always_random:
+            return np.random.choice(self.n_variants)
         if random.random() < (1 - trust):
             return np.random.choice(self.n_variants)
         else:
             return np.random.choice(self.n_variants, p=probs_system)
 
 
-def run_simulation(n_questions=10, n_variants=3, max_attempts=100, threshold=0.90, seed=42, debug=False):
+def run_simulation(
+    n_questions=10,
+    n_variants=3,
+    max_attempts=100,
+    threshold=0.90,
+    seed=42,
+    debug=False,
+    random_user=False
+):
     random.seed(seed)
     np.random.seed(seed)
 
-    # Скрытые правильные ответы
     correct_answers = [random.randint(0, n_variants - 1) for _ in range(n_questions)]
 
     algo = MyAlgorithm(n_total_questions=n_questions, n_variants=n_variants)
-    user = User(n_variants=n_variants)
+    user = User(n_variants=n_variants, always_random=random_user)
 
     for attempt in tqdm(range(1, max_attempts + 1), desc="Simulation", unit="step"):
         trust = (attempt / max_attempts) ** 2
 
         user_attempts = []
         probs_all = []
+        predictions = []
+
         for q in range(n_questions):
             probs = algo.predict_proba(q) if hasattr(algo, "predict_proba") else np.eye(n_variants)[algo.predict(q)]
             choice = user.answer(probs, trust)
             user_attempts.append(choice)
             probs_all.append(probs)
 
-        matches = sum(int(user_attempts[q] == correct_answers[q]) for q in range(n_questions))
-        score = matches / n_questions
+            pred = algo.predict(q)
+            predictions.append(pred)
 
-        algo.update(list(range(n_questions)), user_attempts, score, probs_all)
+        matches_user = sum(int(user_attempts[q] == correct_answers[q]) for q in range(n_questions))
+        score_user = matches_user / n_questions
+        algo.update(list(range(n_questions)), user_attempts, score_user, probs_all)
 
-        if debug and (attempt % 10 == 0 or score >= threshold):
+        matches_algo = sum(int(predictions[q] == correct_answers[q]) for q in range(n_questions))
+        score_algo = matches_algo / n_questions
+
+        if debug and (attempt % 10 == 0 or score_algo >= threshold):
             sample_q = 0
-            pred = algo.predict(sample_q)
-            print(f"[#{attempt}] trust={trust:.2f}, score={score:.3f}, "
-                  f"Q0_pred={pred}, Q0_true={correct_answers[sample_q]}")
+            print(f"[#{attempt}] trust={trust:.2f}, "
+                  f"user_score={score_user:.3f}, algo_score={score_algo:.3f}, "
+                  f"Q0_pred={predictions[sample_q]}, Q0_true={correct_answers[sample_q]}")
 
-        if score >= threshold:
-            print(f"\n✅ Достигнуто {score*100:.1f}% правильных на попытке #{attempt}")
+        if score_algo >= threshold:
+            print(f"\n✅ Алгоритм достиг {score_algo*100:.1f}% правильных на попытке #{attempt}")
             return attempt
 
-    print(f"\n❌ Не достигнуто {threshold*100:.1f}% за {max_attempts} попыток.")
+    print(f"\n❌ Алгоритм не достиг {threshold*100:.1f}% за {max_attempts} попыток.")
     return None
 
 
@@ -65,6 +81,7 @@ if __name__ == "__main__":
     parser.add_argument("--threshold", type=float, default=0.95, help="Целевая точность (0..1)")
     parser.add_argument("--seed", type=int, default=42, help="Сид для рандома")
     parser.add_argument("--debug", action="store_true", help="Подробный вывод прогресса")
+    parser.add_argument("--random_user", action="store_true", help="Пользователь всегда отвечает случайно")
     args = parser.parse_args()
 
     run_simulation(
@@ -74,4 +91,5 @@ if __name__ == "__main__":
         threshold=args.threshold,
         seed=args.seed,
         debug=args.debug,
+        random_user=args.random_user,
     )
