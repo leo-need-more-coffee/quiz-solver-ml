@@ -1,4 +1,4 @@
-# Adaptive Quiz Solver
+# Quiz Solver Problem
 
 ## Описание задачи
 
