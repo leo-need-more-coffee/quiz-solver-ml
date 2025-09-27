@@ -64,7 +64,6 @@ def run_single_simulation(
         avg_correct_system[T] += correct_pred
     end_time = np.datetime64('now')
     duration = (end_time - start_time).astype('timedelta64[s]').item().total_seconds()
-    print(f"Simulation {alg_class} with seed {seed} took {duration} seconds.")
     return avg_correct_system.tolist()
 
 
@@ -80,9 +79,7 @@ def simulate_multiple(
     simulations: int
 ) -> Dict[str, List[float]]:
     results = {}
-    print("Total simulations:", simulations*len(algorithms))
     for name, cls, kwargs in algorithms:
-        print(f"Running {simulations} simulations for:", name)
         seeds = np.random.randint(0, 10**6, size=simulations)
         args_list = [
             (cls, kwargs, n_total_questions, n_variants, max_attempts, int(seed))
