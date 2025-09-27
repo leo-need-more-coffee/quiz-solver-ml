@@ -11,11 +11,12 @@ def softmax(weights, temp=1.0):
 
 
 class SimulatedUser:
-    def __init__(self, n_variants: int):
+    def __init__(self, n_variants: int, user_full_random: bool = False):
         self.n_variants = n_variants
+        self.user_full_random = user_full_random
 
     def answer(self, probs_system: np.ndarray, trust: float) -> int:
-        if random.random() < (1 - trust) or True:
+        if random.random() < (1 - trust) or self.user_full_random:
             return np.random.choice(self.n_variants)
         else:
             return int(np.argmax(probs_system))
@@ -27,11 +28,11 @@ def run_single_simulation(
     n_total_questions: int,
     n_variants: int,
     max_attempts: int,
-    seed: int
+    seed: int,
+    user_full_random: bool = False
 ) -> List[float]:
     random.seed(seed)
     np.random.seed(seed)
-    start_time = np.datetime64('now')
 
     algorithm = alg_class(n_total_questions, n_variants, **alg_kwargs)
     if hasattr(algorithm, 'reset'):
@@ -39,7 +40,7 @@ def run_single_simulation(
 
     correct_answers = [random.randint(0, n_variants - 1) for _ in range(n_total_questions)]
     avg_correct_system = np.zeros(max_attempts + 1)
-    user = SimulatedUser(n_variants)
+    user = SimulatedUser(n_variants, user_full_random)
 
     for T in range(1, max_attempts + 1):
         chosen_questions = list(range(n_total_questions))
@@ -62,8 +63,6 @@ def run_single_simulation(
 
         correct_pred = sum(algorithm.predict(q) == correct_answers[q] for q in chosen_questions)
         avg_correct_system[T] += correct_pred
-    end_time = np.datetime64('now')
-    duration = (end_time - start_time).astype('timedelta64[s]').item().total_seconds()
     return avg_correct_system.tolist()
 
 
@@ -76,13 +75,14 @@ def simulate_multiple(
     n_total_questions: int,
     n_variants: int,
     max_attempts: int,
-    simulations: int
+    simulations: int,
+    user_full_random: bool = False
 ) -> Dict[str, List[float]]:
     results = {}
     for name, cls, kwargs in algorithms:
         seeds = np.random.randint(0, 10**6, size=simulations)
         args_list = [
-            (cls, kwargs, n_total_questions, n_variants, max_attempts, int(seed))
+            (cls, kwargs, n_total_questions, n_variants, max_attempts, int(seed), user_full_random)
             for seed in seeds
         ]
         with ProcessPoolExecutor() as executor:

@@ -21,6 +21,7 @@ n_total_questions = st.sidebar.number_input("Всего вопросов", 5, 50
 n_variants = st.sidebar.number_input("Вариантов ответа", 2, 100, 3)
 max_attempts = st.sidebar.number_input("Число попыток", 1, 5000, 20)
 simulations = st.sidebar.number_input("Симуляций", 1, 10000, 10)
+user_full_random = st.sidebar.checkbox("Пользователь отвечает случайно", False)
 
 available_algorithms = {
     "GradientBandit": GradientBanditAlgorithm,
@@ -46,7 +47,8 @@ if st.button("Запустить симуляцию"):
             n_total_questions=n_total_questions,
             n_variants=n_variants,
             max_attempts=max_attempts,
-            simulations=simulations
+            simulations=simulations,
+            user_full_random=user_full_random
         )
 
         fig, ax = plt.subplots(figsize=(12, 7))
