@@ -24,6 +24,14 @@
 
 - `streamlit_app.py` — интерактивное приложение на Streamlit для визуального сравнения алгоритмов. Позволяет запускать эксперименты и строить графики.
 
+## Установка
+
+```bash
+git clone https://github.com/leo-need-more-coffee/quiz-solver-ml.git
+cd quiz-solver-ml
+pip install -r requirements.txt
+```
+
 ## Запуск симуляции в консоли
 
 Простейший запуск:
@@ -76,6 +84,8 @@ streamlit run streamlit_app.py
 1. Реализуйте класс `MyAlgorithm` в файле `mysolve.py`.
 2. Запустите консольную симуляцию (`python main.py`) и проверьте, на какой попытке алгоритм достигает заданного порога точности.
 3. Используйте Streamlit-приложение для анализа и сравнения алгоритмов.
+
+##  
 
 <details>
 <summary> Страшные подробности </summary>
