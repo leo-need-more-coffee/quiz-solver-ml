@@ -51,7 +51,7 @@ if st.button("Запустить симуляцию"):
             user_full_random=user_full_random
         )
 
-        fig, ax = plt.subplots(figsize=(12, 7))
+        fig, (ax, ax_text) = plt.subplots(nrows=2, figsize=(12, 8), gridspec_kw={'height_ratios': [4, 1]})
         for name, avg_correct in results.items():
             x = np.arange(len(avg_correct))
             ax.plot(x, avg_correct, label=name)
@@ -60,4 +60,17 @@ if st.button("Запустить симуляцию"):
         ax.set_title("Результаты симуляций")
         ax.grid(True)
         ax.legend()
+
+        ax.set_ylim(0, n_total_questions)
+        settings_info = (
+            f"Всего вопросов: {n_total_questions}\n"
+            f"Вариантов ответа: {n_variants}\n"
+            f"Число попыток: {max_attempts}\n"
+            f"Симуляций: {simulations}\n"
+            f"Пользователь отвечает случайно: {'Да' if user_full_random else 'Нет'}\n"
+        )
+        # Выводим параметры симуляции в нижнем subplot
+        ax_text.axis('off')
+        ax_text.text(0, 1, settings_info, fontsize=12, va='top', ha='left', family='monospace')
+        plt.tight_layout()
         st.pyplot(fig)
