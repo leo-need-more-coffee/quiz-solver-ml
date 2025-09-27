@@ -11,6 +11,7 @@ from algorithms import (
     EMAlgorithm,
     BayesianAlgorithm
 )
+from my_solution import MyAlgorithm
 
 st.set_page_config(page_title="Адаптивные тесты", layout="wide")
 st.title("Сравнение алгоритмов адаптивного тестирования")
@@ -29,6 +30,7 @@ available_algorithms = {
     "ThompsonSampling": ThompsonSamplingAttemptAlgorithm,
     "EM": EMAlgorithm,
     "Bayesian": BayesianAlgorithm,
+    "MyAlgorithm": MyAlgorithm
 }
 
 st.sidebar.header("Выбор алгоритмов")

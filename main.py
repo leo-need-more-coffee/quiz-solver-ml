@@ -3,7 +3,7 @@ import random
 import numpy as np
 import argparse
 from tqdm import tqdm
-from mysolve import MyAlgorithm
+from my_solution import MyAlgorithm
 
 
 class User:
@@ -17,7 +17,7 @@ class User:
             return np.random.choice(self.n_variants, p=probs_system)
 
 
-def run_simulation(n_questions=10, n_variants=3, max_attempts=100, threshold=0.95, seed=42, debug=False):
+def run_simulation(n_questions=10, n_variants=3, max_attempts=100, threshold=0.90, seed=42, debug=False):
     random.seed(seed)
     np.random.seed(seed)
 
