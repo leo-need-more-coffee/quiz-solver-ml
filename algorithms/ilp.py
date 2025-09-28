@@ -3,28 +3,28 @@ from algorithms.base import AlgorithmBase
 import pulp
 
 
-class MyAlgorithm(AlgorithmBase):
+class ILPAlgorithm(AlgorithmBase):
     """
-    ILP-based solver с фильтрацией дубликатов:
-    - Храним все уникальные попытки.
-    - Дубликаты не добавляются.
-    - Используем всю историю ограничений.
+    ILP-based solver:
+    - Накапливает все наблюдения в виде ограничений.
+    - Каждое обновление запускает MILP (через pulp).
+    - predict: если вариант фиксирован во всех допустимых решениях -> возвращаем его,
+               иначе берём наиболее вероятный по текущему распределению решений.
     """
-    name = "ILP-based"
 
     def __init__(self, n_questions: int, n_options: int):
         super().__init__(n_questions, n_options)
         self.nq = n_questions
         self.no = n_options
         self.attempts = []  # (chosen_questions, user_attempts, correct)
-        self._seen_signatures = set()
 
         # текущее "уверенное" распределение
-        self.fixed = np.full(n_questions, -1, dtype=int)
+        self.fixed = np.full(n_questions, -1, dtype=int)  # -1 = ещё не знаем
 
     def predict(self, q: int) -> int:
         if self.fixed[q] != -1:
             return int(self.fixed[q])
+        # если нефиксировано — просто argmax по вероятностям (или рандом)
         return int(np.random.randint(0, self.no))
 
     def predict_proba(self, q: int):
@@ -32,23 +32,13 @@ class MyAlgorithm(AlgorithmBase):
             p = np.zeros(self.no)
             p[self.fixed[q]] = 1.0
             return p
+        # равномерно если ещё не зафиксировали
         return np.ones(self.no) / self.no
 
     def update(self, chosen_questions, user_attempts, normalized_score, probs_all):
-        import time
-
-        start = time.perf_counter()
-
         m = len(chosen_questions)
         correct = int(round(normalized_score * m))
-
-        # --- фильтрация дубликатов ---
-        signature = (tuple(chosen_questions), tuple(user_attempts), correct)
-        if signature not in self._seen_signatures:
-            self._seen_signatures.add(signature)
-            self.attempts.append((chosen_questions, user_attempts, correct))
-        else:
-            return  # нет смысла решать заново
+        self.attempts.append((chosen_questions, user_attempts, correct))
 
         # решаем ILP
         prob = pulp.LpProblem("QuizSolver", pulp.LpStatusOptimal)
@@ -78,6 +68,3 @@ class MyAlgorithm(AlgorithmBase):
                 if np.sum(solution[q]) == 1:
                     a = int(np.argmax(solution[q]))
                     self.fixed[q] = a
-
-        dt = time.perf_counter() - start
-        print(f"Update took {dt:.4f} s")

@@ -33,6 +33,7 @@ def run_single_simulation(
 ) -> List[float]:
     random.seed(seed)
     np.random.seed(seed)
+    start_time = np.datetime64('now')
 
     algorithm = alg_class(n_total_questions, n_variants, **alg_kwargs)
     if hasattr(algorithm, 'reset'):
@@ -63,6 +64,9 @@ def run_single_simulation(
 
         correct_pred = sum(algorithm.predict(q) == correct_answers[q] for q in chosen_questions)
         avg_correct_system[T] += correct_pred
+    end_time = np.datetime64('now')
+    duration = (end_time - start_time).astype('timedelta64[s]').item().total_seconds()
+    print(f"Simulation {alg_class.__name__} with seed {seed} completed in {duration:.2f} seconds.")
     return avg_correct_system.tolist()
 
 
@@ -79,12 +83,14 @@ def simulate_multiple(
     user_full_random: bool = False
 ) -> Dict[str, List[float]]:
     results = {}
+    print(f"Starting simulations: {simulations} runs for each of {len(algorithms)} algorithms.")
     for name, cls, kwargs in algorithms:
         seeds = np.random.randint(0, 10**6, size=simulations)
         args_list = [
             (cls, kwargs, n_total_questions, n_variants, max_attempts, int(seed), user_full_random)
             for seed in seeds
         ]
+        print(f"Running {simulations} simulations for algorithm: {name}")
         with ProcessPoolExecutor() as executor:
             all_runs = list(executor.map(run_simulation_unpack, args_list))
 

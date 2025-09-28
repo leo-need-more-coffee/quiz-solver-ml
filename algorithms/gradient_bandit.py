@@ -31,7 +31,6 @@ class GradientBanditAlgorithm(AlgorithmBase):
             w = self.weights[q]
             probs = self._softmax(w)
 
-            # baseline быстрее реагирует
             self.mean_reward[q] = 0.5 * self.mean_reward[q] + 0.5 * reward
             mean_reward = self.mean_reward[q]
 

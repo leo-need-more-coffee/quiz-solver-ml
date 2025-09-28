@@ -6,3 +6,7 @@ from .uniform_random import UniformRandomAlgorithm
 from .thompson_sampling import ThompsonSamplingAttemptAlgorithm
 from .em import EMAlgorithm
 from .bayesian import BayesianAlgorithm
+from .simple_bayesian import SimpleBayesianAlgorithm
+from .particle_filter import ParticleFilterAlgorithm
+from .ilp import ILPAlgorithm
+from .belief_propagation import BeliefPropagationAlgorithm

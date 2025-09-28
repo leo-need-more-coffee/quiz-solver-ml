@@ -4,12 +4,14 @@ import matplotlib.pyplot as plt
 from simulator.simulation import simulate_multiple
 from algorithms import (
     GradientBanditAlgorithm,
-    SoftmaxTemperatureAlgorithm,
     EpsilonGreedyAlgorithm,
     UniformRandomAlgorithm,
     ThompsonSamplingAttemptAlgorithm,
     EMAlgorithm,
-    BayesianAlgorithm
+    SimpleBayesianAlgorithm,
+    ParticleFilterAlgorithm,
+    ILPAlgorithm,
+    BeliefPropagationAlgorithm
 )
 from my_solution import MyAlgorithm
 
@@ -25,17 +27,19 @@ user_full_random = st.sidebar.checkbox("Пользователь отвечае�
 
 available_algorithms = {
     "GradientBandit": GradientBanditAlgorithm,
-    "SoftmaxTemp": SoftmaxTemperatureAlgorithm,
     "EpsilonGreedy": EpsilonGreedyAlgorithm,
     "UniformRandom": UniformRandomAlgorithm,
     "ThompsonSampling": ThompsonSamplingAttemptAlgorithm,
     "EM": EMAlgorithm,
-    "Bayesian": BayesianAlgorithm,
-    "MyAlgorithm": MyAlgorithm
+    "SimpleBayesian": SimpleBayesianAlgorithm,
+    "ParticleFilter": ParticleFilterAlgorithm,
+    "ILP": ILPAlgorithm,
+    "BeliefPropagation": BeliefPropagationAlgorithm,
+    MyAlgorithm.name: MyAlgorithm
 }
 
 st.sidebar.header("Выбор алгоритмов")
-selected = st.sidebar.multiselect("Алгоритмы", list(available_algorithms.keys()), default=["GradientBandit", "EpsilonGreedy", "MyAlgorithm"])
+selected = st.sidebar.multiselect("Алгоритмы", list(available_algorithms.keys()), default=["GradientBandit", "EpsilonGreedy", MyAlgorithm.name])
 
 if st.button("Запустить симуляцию"):
     if not selected:
